@@ -1,1 +1,1667 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook Ads Performance Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --fb-blue: #1877f2;
+            --fb-blue-dark: #166fe5;
+            --fb-blue-light: #4599ff;
+            --gradient-start: #0062e0;
+            --gradient-end: #19afff;
+            --dark-bg: #18191a;
+            --card-bg: #242526;
+            --card-hover: #3a3b3c;
+            --text-primary: #e4e6eb;
+            --text-secondary: #b0b3b8;
+            --text-muted: #8a8d91;
+            --border-color: #3e4042;
+            --success: #31a24c;
+            --success-light: #42b72a;
+            --warning: #f7b928;
+            --error: #f02849;
+            --purple: #9b59b6;
+            --orange: #f5821f;
+        }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'IBM Plex Sans Thai', 'Prompt', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(24, 119, 242, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(25, 175, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(155, 89, 182, 0.05) 0%, transparent 50%);
+            animation: bgFloat 25s ease-in-out infinite;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(2%, 1%) scale(1.02); }
+            66% { transform: translate(-1%, 2%) scale(0.98); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1500px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-container {
+            display: inline-flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .fb-logo {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--fb-blue), var(--gradient-end));
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 8px 32px rgba(24, 119, 242, 0.4);
+        }
+
+        h1 {
+            font-family: 'Prompt', sans-serif;
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff 0%, var(--fb-blue-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            animation: fadeIn 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            background: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-secondary);
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: var(--card-hover);
+            border-color: var(--fb-blue);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--fb-blue), var(--fb-blue-dark));
+            border-color: var(--fb-blue);
+            color: white;
+            box-shadow: 0 4px 20px rgba(24, 119, 242, 0.3);
+        }
+
+        .tab-icon {
+            font-size: 1.2rem;
+        }
+
+        /* Main Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            animation: slideUp 0.6s ease-out 0.3s both;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(24, 119, 242, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .card-icon.blue { background: linear-gradient(135deg, var(--fb-blue), var(--gradient-end)); }
+        .card-icon.green { background: linear-gradient(135deg, var(--success), var(--success-light)); }
+        .card-icon.purple { background: linear-gradient(135deg, var(--purple), #8e44ad); }
+        .card-icon.orange { background: linear-gradient(135deg, var(--orange), #e67e22); }
+
+        .card-title {
+            font-family: 'Prompt', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+        }
+
+        /* Input Groups */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .label-text {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-suffix {
+            position: absolute;
+            top: 50%;
+            right: 14px;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+
+        input[type="number"], input[type="text"] {
+            width: 100%;
+            background: var(--dark-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px 50px 14px 14px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            transition: all 0.3s ease;
+            -moz-appearance: textfield;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--fb-blue);
+            box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
+        }
+
+        input.no-suffix {
+            padding-right: 14px;
+        }
+
+        /* Results Preview */
+        .results-preview {
+            margin-top: 20px;
+            padding: 16px;
+            background: var(--dark-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .preview-title {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .preview-item {
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 8px;
+            border-left: 3px solid var(--fb-blue);
+        }
+
+        .preview-item.highlight {
+            border-left-color: var(--success);
+        }
+
+        .preview-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .preview-value {
+            font-family: 'Prompt', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preview-value.blue { color: var(--fb-blue-light); }
+        .preview-value.green { color: var(--success-light); }
+        .preview-value.orange { color: var(--orange); }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-family: 'IBM Plex Sans Thai', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--fb-blue), var(--fb-blue-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(24, 119, 242, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--fb-blue);
+            color: var(--fb-blue-light);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(49, 162, 76, 0.4);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+
+        /* Table Styles */
+        .table-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 16px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.85rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 14px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .data-table th {
+            background: var(--dark-bg);
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .data-table th:first-child,
+        .data-table td:first-child {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: var(--card-bg);
+            z-index: 5;
+        }
+
+        .data-table th:first-child {
+            background: var(--dark-bg);
+            z-index: 15;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(24, 119, 242, 0.05);
+        }
+
+        .data-table td {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .campaign-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .campaign-badge {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .cell-blue { color: var(--fb-blue-light); font-weight: 600; }
+        .cell-green { color: var(--success-light); font-weight: 600; }
+        .cell-orange { color: var(--orange); font-weight: 600; }
+        .cell-red { color: var(--error); font-weight: 600; }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn:hover {
+            border-color: var(--fb-blue);
+            color: var(--fb-blue);
+            background: rgba(24, 119, 242, 0.1);
+        }
+
+        .action-btn.delete:hover {
+            border-color: var(--error);
+            color: var(--error);
+            background: rgba(240, 40, 73, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Stats Summary */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--dark-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--fb-blue);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'Prompt', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .stat-value.blue { color: var(--fb-blue-light); }
+        .stat-value.green { color: var(--success-light); }
+        .stat-value.purple { color: var(--purple); }
+        .stat-value.orange { color: var(--orange); }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Ad Type Badge */
+        .ad-type-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .ad-type-badge.page-like {
+            background: rgba(24, 119, 242, 0.15);
+            color: var(--fb-blue-light);
+        }
+
+        .ad-type-badge.engagement {
+            background: rgba(155, 89, 182, 0.15);
+            color: var(--purple);
+        }
+
+        .ad-type-badge.lead {
+            background: rgba(49, 162, 76, 0.15);
+            color: var(--success-light);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 14px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--success);
+            border-radius: 10px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .tab-btn {
+                padding: 12px 16px;
+                font-size: 0.85rem;
+            }
+            
+            .tab-btn span:not(.tab-icon) {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="fb-logo">f</div>
+            </div>
+            <h1>Facebook Ads Performance Calculator</h1>
+            <p class="subtitle">คำนวณประสิทธิภาพโฆษณา Page Like / Engagement / Lead Ads</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="page-like">
+                <span class="tab-icon">👍</span>
+                <span>Page Like Ads</span>
+            </button>
+            <button class="tab-btn" data-tab="engagement">
+                <span class="tab-icon">💬</span>
+                <span>Engagement Ads</span>
+            </button>
+            <button class="tab-btn" data-tab="lead">
+                <span class="tab-icon">📝</span>
+                <span>Lead Ads</span>
+            </button>
+        </div>
+
+        <!-- Page Like Ads -->
+        <div class="tab-content active" id="tab-page-like">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon blue">👍</div>
+                            <h2 class="card-title">Page Like Ads</h2>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📝 ชื่อแคมเปญ</span>
+                        </div>
+                        <input type="text" id="pl-name" class="no-suffix" value="Page Like Campaign 1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💰 Budget</span>
+                            <span class="label-hint">งบประมาณ</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="pl-budget" value="10000" min="0">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👁️ CPM</span>
+                            <span class="label-hint">Cost per 1,000 Impressions</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="pl-cpm" value="80" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👆 CPC</span>
+                            <span class="label-hint">Cost per Click</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="pl-cpc" value="2" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👍 CPL (Cost per Like)</span>
+                            <span class="label-hint">ต้นทุนต่อ Like</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="pl-cpl" value="5" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="results-preview">
+                        <div class="preview-title">📊 ผลลัพธ์โดยประมาณ</div>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="preview-label">Impressions</div>
+                                <div class="preview-value" id="pl-prev-impressions">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Clicks</div>
+                                <div class="preview-value" id="pl-prev-clicks">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">CTR</div>
+                                <div class="preview-value blue" id="pl-prev-ctr">0%</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Page Likes</div>
+                                <div class="preview-value green" id="pl-prev-likes">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Like Rate</div>
+                                <div class="preview-value orange" id="pl-prev-rate">0%</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Reach (Est.)</div>
+                                <div class="preview-value" id="pl-prev-reach">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveCampaign('page-like')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            บันทึก
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetForm('page-like')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon blue">📊</div>
+                            <h2 class="card-title">เปรียบเทียบแคมเปญ Page Like</h2>
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn btn-success btn-sm" onclick="exportCSV('page-like')" id="pl-export" style="display:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearAll('page-like')" id="pl-clear" style="display:none;">ลบทั้งหมด</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" id="pl-stats" style="display:none;">
+                        <div class="stat-card">
+                            <div class="stat-label">แคมเปญ</div>
+                            <div class="stat-value blue" id="pl-total-campaigns">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">งบรวม</div>
+                            <div class="stat-value orange" id="pl-total-budget">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Likes รวม</div>
+                            <div class="stat-value green" id="pl-total-likes">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg CPL</div>
+                            <div class="stat-value purple" id="pl-avg-cpl">฿0</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="empty-state" id="pl-empty">
+                            <div class="empty-icon">👍</div>
+                            <div class="empty-text">ยังไม่มีแคมเปญ Page Like</div>
+                        </div>
+                        <table class="data-table" id="pl-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>แคมเปญ</th>
+                                    <th>Budget</th>
+                                    <th>CPM</th>
+                                    <th>CPC</th>
+                                    <th>CPL</th>
+                                    <th>Impressions</th>
+                                    <th>Reach</th>
+                                    <th>Clicks</th>
+                                    <th>CTR</th>
+                                    <th>Likes</th>
+                                    <th>Like Rate</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pl-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement Ads -->
+        <div class="tab-content" id="tab-engagement">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon purple">💬</div>
+                            <h2 class="card-title">Engagement Ads</h2>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📝 ชื่อแคมเปญ</span>
+                        </div>
+                        <input type="text" id="eng-name" class="no-suffix" value="Engagement Campaign 1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💰 Budget</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="eng-budget" value="10000" min="0">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👁️ CPM</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="eng-cpm" value="60" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💬 CPE (Cost per Engagement)</span>
+                            <span class="label-hint">Like, Comment, Share</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="eng-cpe" value="0.5" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👆 CPC</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="eng-cpc" value="1.5" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📊 Engagement Rate</span>
+                            <span class="label-hint">อัตราการมีส่วนร่วม</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="eng-rate" value="5" min="0" max="100" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="results-preview">
+                        <div class="preview-title">📊 ผลลัพธ์โดยประมาณ</div>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="preview-label">Impressions</div>
+                                <div class="preview-value" id="eng-prev-impressions">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Reach (Est.)</div>
+                                <div class="preview-value" id="eng-prev-reach">0</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Engagements</div>
+                                <div class="preview-value green" id="eng-prev-engagements">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Clicks</div>
+                                <div class="preview-value" id="eng-prev-clicks">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">CTR</div>
+                                <div class="preview-value blue" id="eng-prev-ctr">0%</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Eng. Rate</div>
+                                <div class="preview-value orange" id="eng-prev-rate">0%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveCampaign('engagement')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            บันทึก
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetForm('engagement')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon purple">📊</div>
+                            <h2 class="card-title">เปรียบเทียบแคมเปญ Engagement</h2>
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn btn-success btn-sm" onclick="exportCSV('engagement')" id="eng-export" style="display:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearAll('engagement')" id="eng-clear" style="display:none;">ลบทั้งหมด</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" id="eng-stats" style="display:none;">
+                        <div class="stat-card">
+                            <div class="stat-label">แคมเปญ</div>
+                            <div class="stat-value blue" id="eng-total-campaigns">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">งบรวม</div>
+                            <div class="stat-value orange" id="eng-total-budget">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Engagements รวม</div>
+                            <div class="stat-value green" id="eng-total-engagements">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg CPE</div>
+                            <div class="stat-value purple" id="eng-avg-cpe">฿0</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="empty-state" id="eng-empty">
+                            <div class="empty-icon">💬</div>
+                            <div class="empty-text">ยังไม่มีแคมเปญ Engagement</div>
+                        </div>
+                        <table class="data-table" id="eng-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>แคมเปญ</th>
+                                    <th>Budget</th>
+                                    <th>CPM</th>
+                                    <th>CPE</th>
+                                    <th>CPC</th>
+                                    <th>Impressions</th>
+                                    <th>Reach</th>
+                                    <th>Engagements</th>
+                                    <th>Clicks</th>
+                                    <th>CTR</th>
+                                    <th>Eng Rate</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eng-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lead Ads -->
+        <div class="tab-content" id="tab-lead">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon green">📝</div>
+                            <h2 class="card-title">Lead Ads</h2>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📝 ชื่อแคมเปญ</span>
+                        </div>
+                        <input type="text" id="lead-name" class="no-suffix" value="Lead Campaign 1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💰 Budget</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-budget" value="15000" min="0">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👁️ CPM</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-cpm" value="100" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👆 CPC</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-cpc" value="3" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📝 CPL (Cost per Lead)</span>
+                            <span class="label-hint">ต้นทุนต่อ Lead</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-cpl" value="50" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">🎯 Lead Conversion Rate</span>
+                            <span class="label-hint">อัตราการกรอกฟอร์ม</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-cvr" value="10" min="0" max="100" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💵 Lead Value</span>
+                            <span class="label-hint">มูลค่าต่อ Lead</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="lead-value" value="200" min="0">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="results-preview">
+                        <div class="preview-title">📊 ผลลัพธ์โดยประมาณ</div>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="preview-label">Impressions</div>
+                                <div class="preview-value" id="lead-prev-impressions">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Clicks</div>
+                                <div class="preview-value" id="lead-prev-clicks">0</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Leads</div>
+                                <div class="preview-value green" id="lead-prev-leads">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">CTR</div>
+                                <div class="preview-value blue" id="lead-prev-ctr">0%</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Lead Value</div>
+                                <div class="preview-value green" id="lead-prev-value">฿0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">ROAS</div>
+                                <div class="preview-value orange" id="lead-prev-roas">0x</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveCampaign('lead')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            บันทึก
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetForm('lead')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon green">📊</div>
+                            <h2 class="card-title">เปรียบเทียบแคมเปญ Lead</h2>
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn btn-success btn-sm" onclick="exportCSV('lead')" id="lead-export" style="display:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearAll('lead')" id="lead-clear" style="display:none;">ลบทั้งหมด</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" id="lead-stats" style="display:none;">
+                        <div class="stat-card">
+                            <div class="stat-label">แคมเปญ</div>
+                            <div class="stat-value blue" id="lead-total-campaigns">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">งบรวม</div>
+                            <div class="stat-value orange" id="lead-total-budget">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Leads รวม</div>
+                            <div class="stat-value green" id="lead-total-leads">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg CPL</div>
+                            <div class="stat-value purple" id="lead-avg-cpl">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Value</div>
+                            <div class="stat-value green" id="lead-total-value">฿0</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="empty-state" id="lead-empty">
+                            <div class="empty-icon">📝</div>
+                            <div class="empty-text">ยังไม่มีแคมเปญ Lead</div>
+                        </div>
+                        <table class="data-table" id="lead-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>แคมเปญ</th>
+                                    <th>Budget</th>
+                                    <th>CPM</th>
+                                    <th>CPC</th>
+                                    <th>CPL</th>
+                                    <th>Impressions</th>
+                                    <th>Reach</th>
+                                    <th>Clicks</th>
+                                    <th>CTR</th>
+                                    <th>Leads</th>
+                                    <th>CVR</th>
+                                    <th>Lead Value</th>
+                                    <th>ROAS</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lead-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <span id="toast-icon">✅</span>
+        <span id="toast-message">บันทึกสำเร็จ!</span>
+    </div>
+
+    <script>
+        // Data storage
+        const campaigns = {
+            'page-like': [],
+            'engagement': [],
+            'lead': []
+        };
+
+        const counters = {
+            'page-like': 1,
+            'engagement': 1,
+            'lead': 1
+        };
+
+        const colors = ['#1877f2', '#9b59b6', '#31a24c', '#f5821f', '#e74c3c', '#3498db', '#1abc9c', '#f39c12'];
+
+        // Format number
+        function fmt(num, dec = 0) {
+            if (isNaN(num) || !isFinite(num)) return '0';
+            return num.toLocaleString('th-TH', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+            });
+        });
+
+        // ==================== PAGE LIKE ADS ====================
+        function calcPageLike() {
+            const budget = parseFloat(document.getElementById('pl-budget').value) || 0;
+            const cpm = parseFloat(document.getElementById('pl-cpm').value) || 0;
+            const cpc = parseFloat(document.getElementById('pl-cpc').value) || 0;
+            const cpl = parseFloat(document.getElementById('pl-cpl').value) || 0;
+
+            const impressions = cpm > 0 ? (budget / cpm) * 1000 : 0;
+            const reach = impressions * 0.7; // Estimate 70% unique reach
+            const clicks = cpc > 0 ? budget / cpc : 0;
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const likes = cpl > 0 ? budget / cpl : 0;
+            const likeRate = clicks > 0 ? (likes / clicks) * 100 : 0;
+
+            document.getElementById('pl-prev-impressions').textContent = fmt(impressions);
+            document.getElementById('pl-prev-reach').textContent = fmt(reach);
+            document.getElementById('pl-prev-clicks').textContent = fmt(clicks);
+            document.getElementById('pl-prev-ctr').textContent = fmt(ctr, 2) + '%';
+            document.getElementById('pl-prev-likes').textContent = fmt(likes);
+            document.getElementById('pl-prev-rate').textContent = fmt(likeRate, 2) + '%';
+
+            return { impressions, reach, clicks, ctr, likes, likeRate };
+        }
+
+        // ==================== ENGAGEMENT ADS ====================
+        function calcEngagement() {
+            const budget = parseFloat(document.getElementById('eng-budget').value) || 0;
+            const cpm = parseFloat(document.getElementById('eng-cpm').value) || 0;
+            const cpe = parseFloat(document.getElementById('eng-cpe').value) || 0;
+            const cpc = parseFloat(document.getElementById('eng-cpc').value) || 0;
+            const engRate = parseFloat(document.getElementById('eng-rate').value) || 0;
+
+            const impressions = cpm > 0 ? (budget / cpm) * 1000 : 0;
+            const reach = impressions * 0.7;
+            const engagements = cpe > 0 ? budget / cpe : 0;
+            const clicks = cpc > 0 ? budget / cpc : 0;
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const actualEngRate = impressions > 0 ? (engagements / impressions) * 100 : 0;
+
+            document.getElementById('eng-prev-impressions').textContent = fmt(impressions);
+            document.getElementById('eng-prev-reach').textContent = fmt(reach);
+            document.getElementById('eng-prev-engagements').textContent = fmt(engagements);
+            document.getElementById('eng-prev-clicks').textContent = fmt(clicks);
+            document.getElementById('eng-prev-ctr').textContent = fmt(ctr, 2) + '%';
+            document.getElementById('eng-prev-rate').textContent = fmt(actualEngRate, 2) + '%';
+
+            return { impressions, reach, engagements, clicks, ctr, engRate: actualEngRate };
+        }
+
+        // ==================== LEAD ADS ====================
+        function calcLead() {
+            const budget = parseFloat(document.getElementById('lead-budget').value) || 0;
+            const cpm = parseFloat(document.getElementById('lead-cpm').value) || 0;
+            const cpc = parseFloat(document.getElementById('lead-cpc').value) || 0;
+            const cpl = parseFloat(document.getElementById('lead-cpl').value) || 0;
+            const cvr = parseFloat(document.getElementById('lead-cvr').value) || 0;
+            const leadValue = parseFloat(document.getElementById('lead-value').value) || 0;
+
+            const impressions = cpm > 0 ? (budget / cpm) * 1000 : 0;
+            const reach = impressions * 0.7;
+            const clicks = cpc > 0 ? budget / cpc : 0;
+            const ctr = impressions > 0 ? (clicks / impressions) * 100 : 0;
+            const leads = cpl > 0 ? budget / cpl : 0;
+            const totalValue = leads * leadValue;
+            const roas = budget > 0 ? totalValue / budget : 0;
+
+            document.getElementById('lead-prev-impressions').textContent = fmt(impressions);
+            document.getElementById('lead-prev-clicks').textContent = fmt(clicks);
+            document.getElementById('lead-prev-ctr').textContent = fmt(ctr, 2) + '%';
+            document.getElementById('lead-prev-leads').textContent = fmt(leads);
+            document.getElementById('lead-prev-value').textContent = '฿' + fmt(totalValue);
+            document.getElementById('lead-prev-roas').textContent = fmt(roas, 2) + 'x';
+
+            return { impressions, reach, clicks, ctr, leads, cvr, totalValue, roas };
+        }
+
+        // Save campaign
+        function saveCampaign(type) {
+            let data, name;
+            const color = colors[campaigns[type].length % colors.length];
+
+            if (type === 'page-like') {
+                name = document.getElementById('pl-name').value || `Page Like Campaign ${counters[type]}`;
+                const metrics = calcPageLike();
+                data = {
+                    id: Date.now(),
+                    name,
+                    color,
+                    budget: parseFloat(document.getElementById('pl-budget').value) || 0,
+                    cpm: parseFloat(document.getElementById('pl-cpm').value) || 0,
+                    cpc: parseFloat(document.getElementById('pl-cpc').value) || 0,
+                    cpl: parseFloat(document.getElementById('pl-cpl').value) || 0,
+                    ...metrics
+                };
+            } else if (type === 'engagement') {
+                name = document.getElementById('eng-name').value || `Engagement Campaign ${counters[type]}`;
+                const metrics = calcEngagement();
+                data = {
+                    id: Date.now(),
+                    name,
+                    color,
+                    budget: parseFloat(document.getElementById('eng-budget').value) || 0,
+                    cpm: parseFloat(document.getElementById('eng-cpm').value) || 0,
+                    cpe: parseFloat(document.getElementById('eng-cpe').value) || 0,
+                    cpc: parseFloat(document.getElementById('eng-cpc').value) || 0,
+                    ...metrics
+                };
+            } else if (type === 'lead') {
+                name = document.getElementById('lead-name').value || `Lead Campaign ${counters[type]}`;
+                const metrics = calcLead();
+                data = {
+                    id: Date.now(),
+                    name,
+                    color,
+                    budget: parseFloat(document.getElementById('lead-budget').value) || 0,
+                    cpm: parseFloat(document.getElementById('lead-cpm').value) || 0,
+                    cpc: parseFloat(document.getElementById('lead-cpc').value) || 0,
+                    cpl: parseFloat(document.getElementById('lead-cpl').value) || 0,
+                    leadValue: parseFloat(document.getElementById('lead-value').value) || 0,
+                    ...metrics
+                };
+            }
+
+            if (data.budget <= 0) {
+                showToast('กรุณากรอกงบประมาณ', '⚠️');
+                return;
+            }
+
+            campaigns[type].push(data);
+            counters[type]++;
+            updateTable(type);
+            updateStats(type);
+
+            // Reset name for next
+            if (type === 'page-like') document.getElementById('pl-name').value = `Page Like Campaign ${counters[type]}`;
+            if (type === 'engagement') document.getElementById('eng-name').value = `Engagement Campaign ${counters[type]}`;
+            if (type === 'lead') document.getElementById('lead-name').value = `Lead Campaign ${counters[type]}`;
+
+            showToast(`บันทึก "${name}" สำเร็จ!`);
+        }
+
+        // Update table
+        function updateTable(type) {
+            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : 'lead';
+            const table = document.getElementById(`${prefix}-table`);
+            const empty = document.getElementById(`${prefix}-empty`);
+            const tbody = document.getElementById(`${prefix}-tbody`);
+            const exportBtn = document.getElementById(`${prefix}-export`);
+            const clearBtn = document.getElementById(`${prefix}-clear`);
+            const stats = document.getElementById(`${prefix}-stats`);
+
+            if (campaigns[type].length === 0) {
+                table.style.display = 'none';
+                empty.style.display = 'block';
+                exportBtn.style.display = 'none';
+                clearBtn.style.display = 'none';
+                stats.style.display = 'none';
+                return;
+            }
+
+            table.style.display = 'table';
+            empty.style.display = 'none';
+            exportBtn.style.display = 'inline-flex';
+            clearBtn.style.display = 'inline-flex';
+            stats.style.display = 'grid';
+
+            if (type === 'page-like') {
+                tbody.innerHTML = campaigns[type].map(c => `
+                    <tr>
+                        <td><div class="campaign-cell"><span class="campaign-badge" style="background:${c.color}"></span>${c.name}</div></td>
+                        <td>฿${fmt(c.budget)}</td>
+                        <td>฿${fmt(c.cpm, 2)}</td>
+                        <td>฿${fmt(c.cpc, 2)}</td>
+                        <td class="cell-blue">฿${fmt(c.cpl, 2)}</td>
+                        <td>${fmt(c.impressions)}</td>
+                        <td>${fmt(c.reach)}</td>
+                        <td>${fmt(c.clicks)}</td>
+                        <td>${fmt(c.ctr, 2)}%</td>
+                        <td class="cell-green">${fmt(c.likes)}</td>
+                        <td class="cell-orange">${fmt(c.likeRate, 2)}%</td>
+                        <td><div class="action-btns">
+                            <button class="action-btn delete" onclick="deleteCampaign('${type}', ${c.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div></td>
+                    </tr>
+                `).join('');
+            } else if (type === 'engagement') {
+                tbody.innerHTML = campaigns[type].map(c => `
+                    <tr>
+                        <td><div class="campaign-cell"><span class="campaign-badge" style="background:${c.color}"></span>${c.name}</div></td>
+                        <td>฿${fmt(c.budget)}</td>
+                        <td>฿${fmt(c.cpm, 2)}</td>
+                        <td class="cell-blue">฿${fmt(c.cpe, 2)}</td>
+                        <td>฿${fmt(c.cpc, 2)}</td>
+                        <td>${fmt(c.impressions)}</td>
+                        <td>${fmt(c.reach)}</td>
+                        <td class="cell-green">${fmt(c.engagements)}</td>
+                        <td>${fmt(c.clicks)}</td>
+                        <td>${fmt(c.ctr, 2)}%</td>
+                        <td class="cell-orange">${fmt(c.engRate, 2)}%</td>
+                        <td><div class="action-btns">
+                            <button class="action-btn delete" onclick="deleteCampaign('${type}', ${c.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div></td>
+                    </tr>
+                `).join('');
+            } else if (type === 'lead') {
+                tbody.innerHTML = campaigns[type].map(c => `
+                    <tr>
+                        <td><div class="campaign-cell"><span class="campaign-badge" style="background:${c.color}"></span>${c.name}</div></td>
+                        <td>฿${fmt(c.budget)}</td>
+                        <td>฿${fmt(c.cpm, 2)}</td>
+                        <td>฿${fmt(c.cpc, 2)}</td>
+                        <td class="cell-blue">฿${fmt(c.cpl, 2)}</td>
+                        <td>${fmt(c.impressions)}</td>
+                        <td>${fmt(c.reach)}</td>
+                        <td>${fmt(c.clicks)}</td>
+                        <td>${fmt(c.ctr, 2)}%</td>
+                        <td class="cell-green">${fmt(c.leads)}</td>
+                        <td>${fmt(c.cvr, 2)}%</td>
+                        <td class="cell-green">฿${fmt(c.totalValue)}</td>
+                        <td class="${c.roas >= 1 ? 'cell-green' : 'cell-red'}">${fmt(c.roas, 2)}x</td>
+                        <td><div class="action-btns">
+                            <button class="action-btn delete" onclick="deleteCampaign('${type}', ${c.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Update stats
+        function updateStats(type) {
+            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : 'lead';
+            const data = campaigns[type];
+            if (data.length === 0) return;
+
+            const totalBudget = data.reduce((s, c) => s + c.budget, 0);
+
+            document.getElementById(`${prefix}-total-campaigns`).textContent = data.length;
+            document.getElementById(`${prefix}-total-budget`).textContent = '฿' + fmt(totalBudget);
+
+            if (type === 'page-like') {
+                const totalLikes = data.reduce((s, c) => s + c.likes, 0);
+                const avgCpl = totalLikes > 0 ? totalBudget / totalLikes : 0;
+                document.getElementById('pl-total-likes').textContent = fmt(totalLikes);
+                document.getElementById('pl-avg-cpl').textContent = '฿' + fmt(avgCpl, 2);
+            } else if (type === 'engagement') {
+                const totalEng = data.reduce((s, c) => s + c.engagements, 0);
+                const avgCpe = totalEng > 0 ? totalBudget / totalEng : 0;
+                document.getElementById('eng-total-engagements').textContent = fmt(totalEng);
+                document.getElementById('eng-avg-cpe').textContent = '฿' + fmt(avgCpe, 2);
+            } else if (type === 'lead') {
+                const totalLeads = data.reduce((s, c) => s + c.leads, 0);
+                const totalValue = data.reduce((s, c) => s + c.totalValue, 0);
+                const avgCpl = totalLeads > 0 ? totalBudget / totalLeads : 0;
+                document.getElementById('lead-total-leads').textContent = fmt(totalLeads);
+                document.getElementById('lead-avg-cpl').textContent = '฿' + fmt(avgCpl, 2);
+                document.getElementById('lead-total-value').textContent = '฿' + fmt(totalValue);
+            }
+        }
+
+        // Delete campaign
+        function deleteCampaign(type, id) {
+            campaigns[type] = campaigns[type].filter(c => c.id !== id);
+            updateTable(type);
+            updateStats(type);
+            showToast('ลบแคมเปญแล้ว', '🗑️');
+        }
+
+        // Clear all
+        function clearAll(type) {
+            if (!confirm('ต้องการลบทั้งหมด?')) return;
+            campaigns[type] = [];
+            counters[type] = 1;
+            updateTable(type);
+            showToast('ลบทั้งหมดแล้ว', '🗑️');
+        }
+
+        // Export CSV
+        function exportCSV(type) {
+            const data = campaigns[type];
+            if (data.length === 0) return;
+
+            let headers, rows;
+
+            if (type === 'page-like') {
+                headers = ['Campaign', 'Budget', 'CPM', 'CPC', 'CPL', 'Impressions', 'Reach', 'Clicks', 'CTR (%)', 'Likes', 'Like Rate (%)'];
+                rows = data.map(c => [c.name, c.budget, c.cpm, c.cpc, c.cpl, Math.round(c.impressions), Math.round(c.reach), Math.round(c.clicks), c.ctr.toFixed(2), Math.round(c.likes), c.likeRate.toFixed(2)]);
+            } else if (type === 'engagement') {
+                headers = ['Campaign', 'Budget', 'CPM', 'CPE', 'CPC', 'Impressions', 'Reach', 'Engagements', 'Clicks', 'CTR (%)', 'Eng Rate (%)'];
+                rows = data.map(c => [c.name, c.budget, c.cpm, c.cpe, c.cpc, Math.round(c.impressions), Math.round(c.reach), Math.round(c.engagements), Math.round(c.clicks), c.ctr.toFixed(2), c.engRate.toFixed(2)]);
+            } else if (type === 'lead') {
+                headers = ['Campaign', 'Budget', 'CPM', 'CPC', 'CPL', 'Impressions', 'Reach', 'Clicks', 'CTR (%)', 'Leads', 'CVR (%)', 'Lead Value', 'ROAS'];
+                rows = data.map(c => [c.name, c.budget, c.cpm, c.cpc, c.cpl, Math.round(c.impressions), Math.round(c.reach), Math.round(c.clicks), c.ctr.toFixed(2), Math.round(c.leads), c.cvr.toFixed(2), Math.round(c.totalValue), c.roas.toFixed(2)]);
+            }
+
+            const csv = [headers.join(','), ...rows.map(r => r.map(cell => typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell).join(','))].join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `facebook-${type}-ads-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            showToast('Export CSV สำเร็จ!', '📥');
+        }
+
+        // Reset form
+        function resetForm(type) {
+            if (type === 'page-like') {
+                document.getElementById('pl-budget').value = 10000;
+                document.getElementById('pl-cpm').value = 80;
+                document.getElementById('pl-cpc').value = 2;
+                document.getElementById('pl-cpl').value = 5;
+                calcPageLike();
+            } else if (type === 'engagement') {
+                document.getElementById('eng-budget').value = 10000;
+                document.getElementById('eng-cpm').value = 60;
+                document.getElementById('eng-cpe').value = 0.5;
+                document.getElementById('eng-cpc').value = 1.5;
+                document.getElementById('eng-rate').value = 5;
+                calcEngagement();
+            } else if (type === 'lead') {
+                document.getElementById('lead-budget').value = 15000;
+                document.getElementById('lead-cpm').value = 100;
+                document.getElementById('lead-cpc').value = 3;
+                document.getElementById('lead-cpl').value = 50;
+                document.getElementById('lead-cvr').value = 10;
+                document.getElementById('lead-value').value = 200;
+                calcLead();
+            }
+        }
+
+        // Toast
+        function showToast(msg, icon = '✅') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = msg;
+            document.getElementById('toast-icon').textContent = icon;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // Event listeners
+        ['pl-budget', 'pl-cpm', 'pl-cpc', 'pl-cpl'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calcPageLike);
+        });
+
+        ['eng-budget', 'eng-cpm', 'eng-cpe', 'eng-cpc', 'eng-rate'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calcEngagement);
+        });
+
+        ['lead-budget', 'lead-cpm', 'lead-cpc', 'lead-cpl', 'lead-cvr', 'lead-value'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calcLead);
+        });
+
+        // Initial calc
+        calcPageLike();
+        calcEngagement();
+        calcLead();
+    </script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Facebook Ads Performance Calculator</title>
+    <title>Ads Performance Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -726,6 +726,10 @@
                 <span class="tab-icon">📝</span>
                 <span>Lead Ads</span>
             </button>
+            <button class="tab-btn" data-tab="video">
+                <span class="tab-icon">🎬</span>
+                <span>Video View Ads</span>
+            </button>
         </div>
 
         <!-- Page Like Ads -->
@@ -1261,6 +1265,198 @@
                 </div>
             </div>
         </div>
+
+        <!-- Video View Ads -->
+        <div class="tab-content" id="tab-video">
+            <div class="main-content">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon orange">🎬</div>
+                            <h2 class="card-title">Video View Ads</h2>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📝 ชื่อแคมเปญ</span>
+                        </div>
+                        <input type="text" id="video-name" class="no-suffix" value="Video Campaign 1">
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">💰 Budget</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-budget" value="10000" min="0">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">👁️ CPM</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-cpm" value="50" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">🎬 CPV (Cost per View)</span>
+                            <span class="label-hint">ThruPlay / 15 วินาที</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-cpv" value="0.3" min="0" step="0.01">
+                            <span class="input-suffix">฿</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">⏱️ 3-Sec View Rate</span>
+                            <span class="label-hint">อัตราดู 3 วินาที</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-3sec" value="60" min="0" max="100" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">📊 ThruPlay Rate</span>
+                            <span class="label-hint">อัตราดูจบ/15วิ</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-thruplay" value="25" min="0" max="100" step="0.1">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <div class="input-label">
+                            <span class="label-text">⏰ Avg Watch Time</span>
+                            <span class="label-hint">เวลาดูเฉลี่ย</span>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="number" id="video-avgtime" value="8" min="0" step="0.1">
+                            <span class="input-suffix">วินาที</span>
+                        </div>
+                    </div>
+
+                    <div class="results-preview">
+                        <div class="preview-title">📊 ผลลัพธ์โดยประมาณ</div>
+                        <div class="preview-grid">
+                            <div class="preview-item">
+                                <div class="preview-label">Impressions</div>
+                                <div class="preview-value" id="video-prev-impressions">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Reach (Est.)</div>
+                                <div class="preview-value" id="video-prev-reach">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">3-Sec Views</div>
+                                <div class="preview-value blue" id="video-prev-3sec">0</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">ThruPlays</div>
+                                <div class="preview-value green" id="video-prev-thruplay">0</div>
+                            </div>
+                            <div class="preview-item">
+                                <div class="preview-label">Total Watch Time</div>
+                                <div class="preview-value orange" id="video-prev-watchtime">0 ชม.</div>
+                            </div>
+                            <div class="preview-item highlight">
+                                <div class="preview-label">Cost/ThruPlay</div>
+                                <div class="preview-value" id="video-prev-cpv">฿0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="saveCampaign('video')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            บันทึก
+                        </button>
+                        <button class="btn btn-secondary" onclick="resetForm('video')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            รีเซ็ต
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <div class="card-icon orange">📊</div>
+                            <h2 class="card-title">เปรียบเทียบแคมเปญ Video View</h2>
+                        </div>
+                        <div class="table-actions">
+                            <button class="btn btn-success btn-sm" onclick="exportCSV('video')" id="video-export" style="display:none;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                Export CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="clearAll('video')" id="video-clear" style="display:none;">ลบทั้งหมด</button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" id="video-stats" style="display:none;">
+                        <div class="stat-card">
+                            <div class="stat-label">แคมเปญ</div>
+                            <div class="stat-value blue" id="video-total-campaigns">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">งบรวม</div>
+                            <div class="stat-value orange" id="video-total-budget">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">ThruPlays รวม</div>
+                            <div class="stat-value green" id="video-total-thruplay">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Avg CPV</div>
+                            <div class="stat-value purple" id="video-avg-cpv">฿0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Total Watch Time</div>
+                            <div class="stat-value orange" id="video-total-watchtime">0 ชม.</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="empty-state" id="video-empty">
+                            <div class="empty-icon">🎬</div>
+                            <div class="empty-text">ยังไม่มีแคมเปญ Video View</div>
+                        </div>
+                        <table class="data-table" id="video-table" style="display:none;">
+                            <thead>
+                                <tr>
+                                    <th>แคมเปญ</th>
+                                    <th>Budget</th>
+                                    <th>CPM</th>
+                                    <th>CPV</th>
+                                    <th>Impressions</th>
+                                    <th>Reach</th>
+                                    <th>3-Sec Views</th>
+                                    <th>3-Sec Rate</th>
+                                    <th>ThruPlays</th>
+                                    <th>ThruPlay Rate</th>
+                                    <th>Avg Time</th>
+                                    <th>Watch Time</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="video-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Toast -->
@@ -1274,13 +1470,15 @@
         const campaigns = {
             'page-like': [],
             'engagement': [],
-            'lead': []
+            'lead': [],
+            'video': []
         };
 
         const counters = {
             'page-like': 1,
             'engagement': 1,
-            'lead': 1
+            'lead': 1,
+            'video': 1
         };
 
         const colors = ['#1877f2', '#9b59b6', '#31a24c', '#f5821f', '#e74c3c', '#3498db', '#1abc9c', '#f39c12'];
@@ -1377,6 +1575,34 @@
             return { impressions, reach, clicks, ctr, leads, cvr, totalValue, roas };
         }
 
+        // ==================== VIDEO VIEW ADS ====================
+        function calcVideo() {
+            const budget = parseFloat(document.getElementById('video-budget').value) || 0;
+            const cpm = parseFloat(document.getElementById('video-cpm').value) || 0;
+            const cpv = parseFloat(document.getElementById('video-cpv').value) || 0;
+            const rate3sec = parseFloat(document.getElementById('video-3sec').value) || 0;
+            const rateThruplay = parseFloat(document.getElementById('video-thruplay').value) || 0;
+            const avgTime = parseFloat(document.getElementById('video-avgtime').value) || 0;
+
+            const impressions = cpm > 0 ? (budget / cpm) * 1000 : 0;
+            const reach = impressions * 0.7;
+            const views3sec = impressions * (rate3sec / 100);
+            const thruPlays = cpv > 0 ? budget / cpv : 0;
+            const actualThruplayRate = impressions > 0 ? (thruPlays / impressions) * 100 : 0;
+            const totalWatchTime = impressions * avgTime; // in seconds
+            const totalWatchTimeHours = totalWatchTime / 3600;
+            const costPerThruplay = thruPlays > 0 ? budget / thruPlays : 0;
+
+            document.getElementById('video-prev-impressions').textContent = fmt(impressions);
+            document.getElementById('video-prev-reach').textContent = fmt(reach);
+            document.getElementById('video-prev-3sec').textContent = fmt(views3sec);
+            document.getElementById('video-prev-thruplay').textContent = fmt(thruPlays);
+            document.getElementById('video-prev-watchtime').textContent = fmt(totalWatchTimeHours, 1) + ' ชม.';
+            document.getElementById('video-prev-cpv').textContent = '฿' + fmt(costPerThruplay, 2);
+
+            return { impressions, reach, views3sec, rate3sec, thruPlays, rateThruplay: actualThruplayRate, avgTime, totalWatchTime, totalWatchTimeHours, costPerThruplay };
+        }
+
         // Save campaign
         function saveCampaign(type) {
             let data, name;
@@ -1422,6 +1648,18 @@
                     leadValue: parseFloat(document.getElementById('lead-value').value) || 0,
                     ...metrics
                 };
+            } else if (type === 'video') {
+                name = document.getElementById('video-name').value || `Video Campaign ${counters[type]}`;
+                const metrics = calcVideo();
+                data = {
+                    id: Date.now(),
+                    name,
+                    color,
+                    budget: parseFloat(document.getElementById('video-budget').value) || 0,
+                    cpm: parseFloat(document.getElementById('video-cpm').value) || 0,
+                    cpv: parseFloat(document.getElementById('video-cpv').value) || 0,
+                    ...metrics
+                };
             }
 
             if (data.budget <= 0) {
@@ -1438,13 +1676,14 @@
             if (type === 'page-like') document.getElementById('pl-name').value = `Page Like Campaign ${counters[type]}`;
             if (type === 'engagement') document.getElementById('eng-name').value = `Engagement Campaign ${counters[type]}`;
             if (type === 'lead') document.getElementById('lead-name').value = `Lead Campaign ${counters[type]}`;
+            if (type === 'video') document.getElementById('video-name').value = `Video Campaign ${counters[type]}`;
 
             showToast(`บันทึก "${name}" สำเร็จ!`);
         }
 
         // Update table
         function updateTable(type) {
-            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : 'lead';
+            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : type === 'lead' ? 'lead' : 'video';
             const table = document.getElementById(`${prefix}-table`);
             const empty = document.getElementById(`${prefix}-empty`);
             const tbody = document.getElementById(`${prefix}-tbody`);
@@ -1532,12 +1771,34 @@
                         </div></td>
                     </tr>
                 `).join('');
+            } else if (type === 'video') {
+                tbody.innerHTML = campaigns[type].map(c => `
+                    <tr>
+                        <td><div class="campaign-cell"><span class="campaign-badge" style="background:${c.color}"></span>${c.name}</div></td>
+                        <td>฿${fmt(c.budget)}</td>
+                        <td>฿${fmt(c.cpm, 2)}</td>
+                        <td class="cell-blue">฿${fmt(c.cpv, 2)}</td>
+                        <td>${fmt(c.impressions)}</td>
+                        <td>${fmt(c.reach)}</td>
+                        <td>${fmt(c.views3sec)}</td>
+                        <td>${fmt(c.rate3sec, 1)}%</td>
+                        <td class="cell-green">${fmt(c.thruPlays)}</td>
+                        <td class="cell-orange">${fmt(c.rateThruplay, 2)}%</td>
+                        <td>${fmt(c.avgTime, 1)}s</td>
+                        <td>${fmt(c.totalWatchTimeHours, 1)} ชม.</td>
+                        <td><div class="action-btns">
+                            <button class="action-btn delete" onclick="deleteCampaign('${type}', ${c.id})">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                        </div></td>
+                    </tr>
+                `).join('');
             }
         }
 
         // Update stats
         function updateStats(type) {
-            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : 'lead';
+            const prefix = type === 'page-like' ? 'pl' : type === 'engagement' ? 'eng' : type === 'lead' ? 'lead' : 'video';
             const data = campaigns[type];
             if (data.length === 0) return;
 
@@ -1563,6 +1824,13 @@
                 document.getElementById('lead-total-leads').textContent = fmt(totalLeads);
                 document.getElementById('lead-avg-cpl').textContent = '฿' + fmt(avgCpl, 2);
                 document.getElementById('lead-total-value').textContent = '฿' + fmt(totalValue);
+            } else if (type === 'video') {
+                const totalThruplay = data.reduce((s, c) => s + c.thruPlays, 0);
+                const totalWatchTime = data.reduce((s, c) => s + c.totalWatchTimeHours, 0);
+                const avgCpv = totalThruplay > 0 ? totalBudget / totalThruplay : 0;
+                document.getElementById('video-total-thruplay').textContent = fmt(totalThruplay);
+                document.getElementById('video-avg-cpv').textContent = '฿' + fmt(avgCpv, 2);
+                document.getElementById('video-total-watchtime').textContent = fmt(totalWatchTime, 1) + ' ชม.';
             }
         }
 
@@ -1599,6 +1867,9 @@
             } else if (type === 'lead') {
                 headers = ['Campaign', 'Budget', 'CPM', 'CPC', 'CPL', 'Impressions', 'Reach', 'Clicks', 'CTR (%)', 'Leads', 'CVR (%)', 'Lead Value', 'ROAS'];
                 rows = data.map(c => [c.name, c.budget, c.cpm, c.cpc, c.cpl, Math.round(c.impressions), Math.round(c.reach), Math.round(c.clicks), c.ctr.toFixed(2), Math.round(c.leads), c.cvr.toFixed(2), Math.round(c.totalValue), c.roas.toFixed(2)]);
+            } else if (type === 'video') {
+                headers = ['Campaign', 'Budget', 'CPM', 'CPV', 'Impressions', 'Reach', '3-Sec Views', '3-Sec Rate (%)', 'ThruPlays', 'ThruPlay Rate (%)', 'Avg Time (s)', 'Watch Time (hrs)'];
+                rows = data.map(c => [c.name, c.budget, c.cpm, c.cpv, Math.round(c.impressions), Math.round(c.reach), Math.round(c.views3sec), c.rate3sec.toFixed(2), Math.round(c.thruPlays), c.rateThruplay.toFixed(2), c.avgTime.toFixed(1), c.totalWatchTimeHours.toFixed(1)]);
             }
 
             const csv = [headers.join(','), ...rows.map(r => r.map(cell => typeof cell === 'string' && cell.includes(',') ? `"${cell}"` : cell).join(','))].join('\n');
@@ -1633,6 +1904,14 @@
                 document.getElementById('lead-cvr').value = 10;
                 document.getElementById('lead-value').value = 200;
                 calcLead();
+            } else if (type === 'video') {
+                document.getElementById('video-budget').value = 10000;
+                document.getElementById('video-cpm').value = 50;
+                document.getElementById('video-cpv').value = 0.3;
+                document.getElementById('video-3sec').value = 60;
+                document.getElementById('video-thruplay').value = 25;
+                document.getElementById('video-avgtime').value = 8;
+                calcVideo();
             }
         }
 
@@ -1658,10 +1937,15 @@
             document.getElementById(id).addEventListener('input', calcLead);
         });
 
+        ['video-budget', 'video-cpm', 'video-cpv', 'video-3sec', 'video-thruplay', 'video-avgtime'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calcVideo);
+        });
+
         // Initial calc
         calcPageLike();
         calcEngagement();
         calcLead();
+        calcVideo();
     </script>
 </body>
 </html>
